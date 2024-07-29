@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/spf13/viper"
 	"go-rental/app/user"
@@ -44,7 +45,7 @@ func main() {
 		route.Post("/sso", userHandler.StoreUserWithSSO())
 	})
 
-	log.Info("Application Started")
+	log.Info(fmt.Sprintf("%s Application Started", viper.GetString("APP_NAME")))
 	err = http.ListenAndServe(":"+viper.GetString("APP_PORT"), router)
 	if err != nil {
 		log.Fatal(err)

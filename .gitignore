@@ -39,12 +39,9 @@ go.sum
 # GoLand project files
 /.idea/
 /.vscode/
-/.idea/
 /run/
 /tmp/
 /out/
-/.vscode/
-/.idea/
 /storage/
 # Project specific
 .DS_Store
