@@ -13,6 +13,40 @@ type Handler struct {
 	validate *validator.Validate
 }
 
+func (hdl *Handler) StoreAdminWithoutSSO() http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		req := new(domain.RegisterAdminWithoutSSORequest)
+
+		decoder := json.NewDecoder(request.Body)
+		err := decoder.Decode(&req)
+		if err != nil {
+			panic(err)
+		}
+
+		err = hdl.validate.Struct(req)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
+func (hdl *Handler) StoreAdminWithSSO() http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		req := new(domain.RegisterAdminWithSSORequest)
+
+		decoder := json.NewDecoder(request.Body)
+		err := decoder.Decode(&req)
+		if err != nil {
+			panic(err)
+		}
+
+		err = hdl.validate.Struct(req)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
 func (hdl *Handler) StoreUserWithoutSSO() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		req := new(domain.RegisterWithoutSSORequest)

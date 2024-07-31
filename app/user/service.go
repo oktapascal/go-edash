@@ -13,6 +13,16 @@ type Service struct {
 	db  *sql.DB
 }
 
+func (svc *Service) SaveAdminWithoutSSO(ctx context.Context, request *domain.RegisterAdminWithoutSSORequest) *domain.UserResponse {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (svc *Service) SaveAdminWithSSO(ctx context.Context, request *domain.RegisterAdminWithSSORequest) *domain.UserResponse {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (svc *Service) SaveUserWithoutSSO(ctx context.Context, request *domain.RegisterWithoutSSORequest) *domain.UserResponse {
 	tx, err := svc.db.Begin()
 	if err != nil {

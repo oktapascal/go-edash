@@ -28,6 +28,8 @@ func convertTagToMessage(ex validator.FieldError) string {
 		return fmt.Sprint("kolom ini harus memiliki panjang minimal ", ex.Param(), " karakter")
 	case "max":
 		return fmt.Sprint("kolom ini harus memiliki panjang maksimal ", ex.Param(), " karakter")
+	case "eqfield":
+		return fmt.Sprint("kolom ini harus sama dengan '", ex.Param(), "'")
 	default:
 		return ex.Error()
 	}
