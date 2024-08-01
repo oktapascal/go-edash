@@ -3,30 +3,36 @@ package domain
 import (
 	"context"
 	"database/sql"
+	"go-rental/enums"
 	"net/http"
 )
 
 type (
 	User struct {
-		IdNumber    string
-		Email       string
-		Password    *string
-		PhoneNumber string
-		Address     string
-		FirstName   string
-		LastName    string
-		Provider    *string
-		ProviderId  *int8
-		PhotoIdCard *string
+		Id               *string
+		Email            string
+		Password         *string
+		PhoneNumber      string
+		FirstName        string
+		LastName         string
+		Role             enums.Role
+		Provider         *string
+		ProviderId       *int8
+		Otp              string
+		StatusOtp        bool
+		RegistrationStep int8
+		StatusTrial      *bool
+		TrialStartDate   *string
 	}
 
 	UserResponse struct {
 		Email     string `json:"email"`
 		FirstName string `json:"first_name"`
 		LastName  string `json:"last_name"`
+		Token     string `json:"token"`
 	}
 
-	RegisterAdminWithoutSSORequest struct {
+	RegisterBasicWithoutSSORequest struct {
 		FirstName            string `validate:"required,min=1,max=50" json:"first_name"`
 		LastName             string `validate:"required,min=1,max=50" json:"last_name"`
 		Email                string `validate:"required,email" json:"email"`
@@ -34,31 +40,10 @@ type (
 		PasswordConfirmation string `validate:"required,eqfield=Password" json:"password_confirmation"`
 	}
 
-	RegisterAdminWithSSORequest struct {
+	RegisterBasicWithSSORequest struct {
 		FirstName string `validate:"required,min=1,max=50" json:"first_name"`
 		LastName  string `validate:"required,min=1,max=50" json:"last_name"`
 		Email     string `validate:"required,email" json:"email"`
-	}
-
-	RegisterWithoutSSORequest struct {
-		IdNumber    string `validate:"required,min=1,max=16" json:"id_number"`
-		Email       string `validate:"required,email" json:"email"`
-		Password    string `validate:"required" json:"password"`
-		PhoneNumber string `validate:"required,min=10,max=13" json:"phone_number"`
-		Address     string `validate:"required" json:"address"`
-		FirstName   string `validate:"required,min=1,max=50" json:"first_name"`
-		LastName    string `validate:"required,min=1,max=50" json:"last_name"`
-	}
-
-	RegisterWithSSORequest struct {
-		IdNumber    string `validate:"required,min=1,max=16" json:"id_number"`
-		Email       string `validate:"required,email" json:"email"`
-		PhoneNumber string `validate:"required,min=10,max=13" json:"phone_number"`
-		Address     string `validate:"required" json:"address"`
-		FirstName   string `validate:"required,min=1,max=50" json:"first_name"`
-		LastName    string `validate:"required,min=1,max=50" json:"last_name"`
-		Provider    string `validate:"required" json:"provider"`
-		ProviderId  int8   `validate:"required" json:"provider_id"`
 	}
 
 	UserRepository interface {
@@ -67,18 +52,14 @@ type (
 	}
 
 	UserService interface {
-		SaveUserWithoutSSO(ctx context.Context, request *RegisterWithoutSSORequest) *UserResponse
-		SaveUserWithSSO(ctx context.Context, request *RegisterWithSSORequest) *UserResponse
-		SaveAdminWithoutSSO(ctx context.Context, request *RegisterAdminWithoutSSORequest) *UserResponse
-		SaveAdminWithSSO(ctx context.Context, request *RegisterAdminWithSSORequest) *UserResponse
+		SaveRegisterBasicWithoutSSO(ctx context.Context, request *RegisterBasicWithoutSSORequest) *UserResponse
+		SaveRegisterBasicWithSSO(ctx context.Context, request *RegisterBasicWithSSORequest) *UserResponse
 		GetByEmail(ctx context.Context, email string) *UserResponse
 	}
 
 	UserHandler interface {
-		StoreUserWithoutSSO() http.HandlerFunc
-		StoreUserWithSSO() http.HandlerFunc
-		StoreAdminWithoutSSO() http.HandlerFunc
-		StoreAdminWithSSO() http.HandlerFunc
+		RegisterBasicWithoutSSO() http.HandlerFunc
+		RegisterBasicWithSSO() http.HandlerFunc
 		GetByEmail() http.HandlerFunc
 	}
 )

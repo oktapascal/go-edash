@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
@@ -153,9 +154,10 @@ func CreateLoggers(request *http.Request) *logrus.Entry {
 
 	// If a request is provided, add additional fields to the logger
 	return logger.WithFields(logrus.Fields{
-		"at":     time.Now().Format("2006-01-02 15:04:05"),
-		"method": request.Method,
-		"uri":    request.RequestURI,
-		"ip":     request.RemoteAddr,
+		"request_id": middleware.GetReqID(request.Context()),
+		"at":         time.Now().Format("2006-01-02 15:04:05"),
+		"method":     request.Method,
+		"uri":        request.RequestURI,
+		"ip":         request.RemoteAddr,
 	})
 }

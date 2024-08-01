@@ -3,35 +3,38 @@ package main
 import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/spf13/viper"
 	"go-rental/app/user"
 	"go-rental/app/welcome"
 	"go-rental/config"
 	"go-rental/middlewares"
 	"net/http"
+	"time"
 )
 
 // main is the entry point for the application.
 // It does not take any parameters and does not return any value.
 func main() {
 	config.InitConfig()
-
 	log := config.CreateLoggers(nil)
-
+	mailjetClient := config.SetupMailjetClient()
+	validate := config.CreateValidator()
 	db, err := config.ConnectDatabase()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	validate := config.CreateValidator()
-
 	router := chi.NewRouter()
 
+	router.Use(middleware.RequestID)
+	router.Use(middleware.RealIP)
 	router.Use(middlewares.LoggerMiddleware)
 	router.Use(middlewares.RecoverMiddleware)
+	router.Use(middleware.Timeout(60 * time.Second))
 
 	welcomeHandler := welcome.Wire()
-	userHandler := user.Wire(validate, db)
+	userHandler := user.Wire(validate, db, mailjetClient)
 
 	//router.Use(middlewares.AuthorizationCheckMiddleware)
 	//router.Use(middlewares.VerifyTokenMiddleware)
@@ -39,14 +42,9 @@ func main() {
 	router.NotFound(welcomeHandler.NotFoundApi())
 	router.MethodNotAllowed(welcomeHandler.MethodNotAllowedApi())
 
-	router.Route("/admin", func(route chi.Router) {
-		route.Post("/", userHandler.StoreAdminWithoutSSO())
-	})
-
-	router.Route("/user", func(route chi.Router) {
-		route.Get("/email", userHandler.GetByEmail())
-		route.Post("/", userHandler.StoreUserWithoutSSO())
-		route.Post("/sso", userHandler.StoreUserWithSSO())
+	router.Route("/register", func(route chi.Router) {
+		route.Post("/basic/without-sso", userHandler.RegisterBasicWithoutSSO())
+		route.Post("/basic/with-sso", userHandler.RegisterBasicWithSSO())
 	})
 
 	log.Info(fmt.Sprintf("%s Application Started", viper.GetString("APP_NAME")))

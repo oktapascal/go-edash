@@ -3,94 +3,26 @@ package user
 import (
 	"context"
 	"database/sql"
+	"github.com/mailjet/mailjet-apiv3-go/v4"
 	"go-rental/domain"
 	"go-rental/exceptions"
 	"go-rental/utils"
 )
 
 type Service struct {
-	rpo domain.UserRepository
-	db  *sql.DB
+	rpo  domain.UserRepository
+	db   *sql.DB
+	mail *mailjet.Client
 }
 
-func (svc *Service) SaveAdminWithoutSSO(ctx context.Context, request *domain.RegisterAdminWithoutSSORequest) *domain.UserResponse {
+func (svc *Service) SaveRegisterBasicWithoutSSO(ctx context.Context, request *domain.RegisterBasicWithoutSSORequest) *domain.UserResponse {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (svc *Service) SaveAdminWithSSO(ctx context.Context, request *domain.RegisterAdminWithSSORequest) *domain.UserResponse {
+func (svc *Service) SaveRegisterBasicWithSSO(ctx context.Context, request *domain.RegisterBasicWithSSORequest) *domain.UserResponse {
 	//TODO implement me
 	panic("implement me")
-}
-
-func (svc *Service) SaveUserWithoutSSO(ctx context.Context, request *domain.RegisterWithoutSSORequest) *domain.UserResponse {
-	tx, err := svc.db.Begin()
-	if err != nil {
-		panic(err)
-	}
-
-	defer utils.CommitRollback(tx)
-
-	user := &domain.User{
-		IdNumber:    request.IdNumber,
-		Email:       request.Email,
-		Password:    &request.Password,
-		PhoneNumber: request.PhoneNumber,
-		Address:     request.Address,
-		FirstName:   request.FirstName,
-		LastName:    request.LastName,
-	}
-
-	hash, errHash := utils.Hash(*user.Password)
-	if errHash != nil {
-		user.Password = &hash
-	}
-
-	_, err = svc.rpo.FindByEmail(ctx, tx, user.Email)
-	if err == nil {
-		panic(exceptions.NewDuplicateError("email already exists"))
-	}
-
-	user = svc.rpo.Create(ctx, tx, user)
-
-	return &domain.UserResponse{
-		Email:     user.Email,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-	}
-}
-
-func (svc *Service) SaveUserWithSSO(ctx context.Context, request *domain.RegisterWithSSORequest) *domain.UserResponse {
-	tx, err := svc.db.Begin()
-	if err != nil {
-		panic(err)
-	}
-
-	defer utils.CommitRollback(tx)
-
-	user := &domain.User{
-		IdNumber:    request.IdNumber,
-		Email:       request.Email,
-		PhoneNumber: request.PhoneNumber,
-		Address:     request.Address,
-		FirstName:   request.FirstName,
-		LastName:    request.LastName,
-		Provider:    &request.Provider,
-		ProviderId:  &request.ProviderId,
-	}
-
-	_, err = svc.rpo.FindByEmail(ctx, tx, user.Email)
-	if err == nil {
-		panic(exceptions.NewDuplicateError("email already exists"))
-	}
-
-	user = svc.rpo.Create(ctx, tx, user)
-
-	return &domain.UserResponse{
-		Email:     user.Email,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-	}
 }
 
 func (svc *Service) GetByEmail(ctx context.Context, email string) *domain.UserResponse {

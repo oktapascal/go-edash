@@ -9,13 +9,14 @@ package user
 import (
 	"database/sql"
 	"github.com/go-playground/validator/v10"
+	"github.com/mailjet/mailjet-apiv3-go/v4"
 )
 
 // Injectors from wire.go:
 
-func Wire(validate *validator.Validate, db *sql.DB) *Handler {
+func Wire(validate *validator.Validate, db *sql.DB, mail *mailjet.Client) *Handler {
 	repository := ProvideRepository()
-	service := ProvideService(repository, db)
+	service := ProvideService(repository, db, mail)
 	handler := ProvideHandler(validate, service)
 	return handler
 }

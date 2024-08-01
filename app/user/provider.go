@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/wire"
+	"github.com/mailjet/mailjet-apiv3-go/v4"
 	"go-rental/domain"
 	"sync"
 )
@@ -39,11 +40,12 @@ func ProvideHandler(validate *validator.Validate, svc domain.UserService) *Handl
 	return hdl
 }
 
-func ProvideService(rpo domain.UserRepository, db *sql.DB) *Service {
+func ProvideService(rpo domain.UserRepository, db *sql.DB, mail *mailjet.Client) *Service {
 	svcOnce.Do(func() {
 		svc = &Service{
-			rpo: rpo,
-			db:  db,
+			rpo:  rpo,
+			db:   db,
+			mail: mail,
 		}
 	})
 
