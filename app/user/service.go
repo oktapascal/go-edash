@@ -47,7 +47,7 @@ func (svc *Service) SaveRegisterBasicWithoutSSO(ctx context.Context, request *do
 	}
 
 	hash, errHash := utils.Hash(*user.Password)
-	if errHash != nil {
+	if errHash == nil {
 		user.Password = &hash
 	}
 
