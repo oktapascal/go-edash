@@ -28,22 +28,22 @@ func (hdl *Handler) RegisterBasicWithoutSSO() http.HandlerFunc {
 			panic(err)
 		}
 
-		//ctx := request.Context()
-		//result := hdl.svc.SaveUserWithoutSSO(ctx, req)
-		//svcResponse := response.DefaultResponse{
-		//	Code:   http.StatusCreated,
-		//	Status: http.StatusText(http.StatusCreated),
-		//	Data:   result,
-		//}
-		//
-		//writer.Header().Set("Content-Type", "application/json")
-		//
-		//encoder := json.NewEncoder(writer)
-		//
-		//err = encoder.Encode(svcResponse)
-		//if err != nil {
-		//	panic(err)
-		//}
+		ctx := request.Context()
+		result := hdl.svc.SaveRegisterBasicWithoutSSO(ctx, req)
+		svcResponse := response.DefaultResponse{
+			Code:   http.StatusCreated,
+			Status: http.StatusText(http.StatusCreated),
+			Data:   result,
+		}
+
+		writer.Header().Set("Content-Type", "application/json")
+
+		encoder := json.NewEncoder(writer)
+
+		err = encoder.Encode(svcResponse)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
