@@ -29,7 +29,6 @@ type (
 		Email     string `json:"email"`
 		FirstName string `json:"first_name"`
 		LastName  string `json:"last_name"`
-		Token     string `json:"token"`
 	}
 
 	RegisterBasicWithoutSSORequest struct {
