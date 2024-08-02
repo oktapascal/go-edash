@@ -43,7 +43,6 @@ func NotFoundHandler(writer http.ResponseWriter, err any) {
 
 	// Create an error response with the status code and error details
 	errorResponse := response.ErrorResponse{
-
 		Code:   http.StatusNotFound,                  // Set the status code to Not Found
 		Status: http.StatusText(http.StatusNotFound), // Set the status text to the corresponding HTTP status text
 		Errors: err,                                  // Set the error details to the provided error

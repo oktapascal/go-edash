@@ -7,29 +7,28 @@ import (
 	"net/http"
 )
 
-type DuplicateError struct {
+type NotMatchedError struct {
 	Error string
 }
 
-// NewDuplicateError creates a new DuplicateError with the given error message.
+// NewNotMatchedError creates a new NotMatchedError instance.
 //
-// error: The error message to be associated with the DuplicateError.
+// error: The error message to be associated with the NotMatchedError.
 //
-// Returns a DuplicateError with the given error message.
-func NewDuplicateError(error string) DuplicateError {
-	return DuplicateError{
-		Error: error,
-	}
+// Returns a NotMatchedError instance.
+func NewNotMatchedError(error string) NotMatchedError {
+	// Return a new NotMatchedError instance with the provided error message.
+	return NotMatchedError{Error: error}
 }
 
-// DuplicateHandler handles HTTP 400 Bad Request responses for duplicate errors.
+// NotMatchedHandler handles HTTP 400 Bad Request responses for not matched errors.
 // It writes a JSON response with the appropriate status code and error details.
 // If an error occurs while encoding the response, it logs the error.
 //
 // Parameters:
 // - writer: The http.ResponseWriter to write the response to.
 // - err: The error interface containing the details of the error.
-func DuplicateHandler(writer http.ResponseWriter, err any) {
+func NotMatchedHandler(writer http.ResponseWriter, err any) {
 	// Create a logger for error logging
 	log := config.CreateLoggers(nil)
 

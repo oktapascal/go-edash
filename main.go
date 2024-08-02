@@ -42,9 +42,13 @@ func main() {
 	router.NotFound(welcomeHandler.NotFoundApi())
 	router.MethodNotAllowed(welcomeHandler.MethodNotAllowedApi())
 
-	router.Route("/register", func(route chi.Router) {
-		route.Post("/basic/without-sso", userHandler.RegisterBasicWithoutSSO())
-		route.Post("/basic/with-sso", userHandler.RegisterBasicWithSSO())
+	router.Route("/api", func(route chi.Router) {
+		route.Post("/secure/otp-verify", userHandler.OTPConfirmation())
+
+		route.Route("/register", func(subroute chi.Router) {
+			subroute.Post("/basic/without-sso", userHandler.RegisterBasicWithoutSSO())
+			subroute.Post("/basic/with-sso", userHandler.RegisterBasicWithSSO())
+		})
 	})
 
 	log.Info(fmt.Sprintf("%s Application Started", viper.GetString("APP_NAME")))

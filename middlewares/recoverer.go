@@ -43,6 +43,17 @@ func RecoverMiddleware(next http.Handler) http.Handler {
 					return
 				}
 
+				// Check if the error is a NotMatchedError
+				if str, ok := err.(exceptions.NotMatchedError); ok {
+					exceptions.NotMatchedHandler(writer, str)
+					return
+				}
+
+				if str, ok := err.(exceptions.GoneError); ok {
+					exceptions.GoneHandler(writer, str)
+					return
+				}
+
 				// Check if the error is a string
 				if str, ok := err.(string); ok {
 					// Call InternalServerHandler to send error response

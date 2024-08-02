@@ -45,7 +45,7 @@ func (rpo *Repository) Create(ctx context.Context, tx *sql.Tx, user *domain.User
 }
 
 func (rpo *Repository) FindByEmail(ctx context.Context, tx *sql.Tx, email string) (*domain.User, error) {
-	query := `select id, email, password, first_name, last_name
+	query := `select id, email, password, first_name, last_name, otp, otp_expired_time
 	from users where email = ?`
 
 	rows, err := tx.QueryContext(ctx, query, email)
@@ -55,7 +55,8 @@ func (rpo *Repository) FindByEmail(ctx context.Context, tx *sql.Tx, email string
 
 	user := new(domain.User)
 	if rows.Next() {
-		err = rows.Scan(&user.Id, &user.Email, &user.Password, &user.FirstName, &user.LastName)
+		err = rows.Scan(&user.Id, &user.Email, &user.Password, &user.FirstName, &user.LastName, &user.Otp,
+			&user.OtpExpiredTime)
 
 		return user, nil
 	} else {

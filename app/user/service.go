@@ -201,22 +201,67 @@ func (svc *Service) SaveRegisterBasicWithSSO(ctx context.Context, request *domai
 	}
 }
 
+// GetByEmail retrieves a user by their email.
+//
+// It takes a context.Context and the user's email as parameters.
+// It returns a pointer to a domain.UserResponse.
 func (svc *Service) GetByEmail(ctx context.Context, email string) *domain.UserResponse {
+	// Start a new database transaction
 	tx, err := svc.db.Begin()
 	if err != nil {
 		panic(err)
 	}
 
+	// Defer the transaction commit or rollback
 	defer utils.CommitRollback(tx)
 
+	// Find the user by their email
 	user, errFind := svc.rpo.FindByEmail(ctx, tx, email)
 	if errFind != nil {
+		// If the user is not found, throw a NotFoundError
 		panic(exceptions.NewNotFoundError(errFind.Error()))
 	}
 
+	// Return the user's response
 	return &domain.UserResponse{
 		Email:     user.Email,
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
 	}
+}
+
+func (svc *Service) CheckOTPConfirmation(ctx context.Context, request *domain.OTPConfirmationRequest) bool {
+	tx, err := svc.db.Begin()
+	if err != nil {
+		panic(err)
+	}
+
+	user, errFind := svc.rpo.FindByEmail(ctx, tx, request.Email)
+	if errFind != nil {
+		panic(exceptions.NewNotFoundError(errFind.Error()))
+	}
+
+	defer utils.CommitRollback(tx)
+
+	now := time.Now()
+
+	otpExpiredConvert, errConvert := time.Parse("15:04:05", user.OtpExpiredTime)
+	if errConvert != nil {
+		panic(errConvert)
+	}
+
+	otpExpiredTime := time.Date(now.Year(), now.Month(), now.Day(), otpExpiredConvert.Hour(),
+		otpExpiredConvert.Minute(), otpExpiredConvert.Second(), otpExpiredConvert.Nanosecond(), time.UTC)
+
+	difference := now.Sub(otpExpiredTime)
+
+	if difference > 10*time.Minute {
+		panic(exceptions.NewGoneError("otp expired"))
+	}
+
+	if request.Otp != user.Otp {
+		panic(exceptions.NewNotMatchedError("otp not matched"))
+	}
+
+	return true
 }
