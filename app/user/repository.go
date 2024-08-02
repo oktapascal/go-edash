@@ -28,11 +28,11 @@ func getLastId(ctx context.Context, tx *sql.Tx, email string) *string {
 }
 
 func (rpo *Repository) Create(ctx context.Context, tx *sql.Tx, user *domain.User) *domain.User {
-	query := `insert into users (id,email,password,first_name,last_name,role,otp)
-	values (?,?,?,?,?,?,?)`
+	query := `insert into users (id,email,password,first_name,last_name,role,otp,otp_expired_time)
+	values (?,?,?,?,?,?,?,?)`
 
 	_, err := tx.ExecContext(ctx, query, user.Id, user.Email, user.Password, user.FirstName,
-		user.LastName, user.Role, user.Otp)
+		user.LastName, user.Role, user.Otp, user.OtpExpiredTime)
 	if err != nil {
 		panic(err)
 	}

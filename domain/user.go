@@ -19,7 +19,7 @@ type (
 		Provider         *string
 		ProviderId       *int8
 		Otp              string
-		StatusOtp        bool
+		OtpExpiredTime   string
 		RegistrationStep int8
 		StatusTrial      *bool
 		TrialStartDate   *string

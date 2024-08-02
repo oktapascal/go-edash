@@ -4,10 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"github.com/mailjet/mailjet-apiv3-go/v4"
+	"github.com/spf13/viper"
+	"go-rental/config"
 	"go-rental/domain"
 	"go-rental/enums"
 	"go-rental/exceptions"
 	"go-rental/utils"
+	"sync"
+	"time"
 )
 
 type Service struct {
@@ -17,7 +21,7 @@ type Service struct {
 }
 
 func (svc *Service) SaveRegisterBasicWithoutSSO(ctx context.Context, request *domain.RegisterBasicWithoutSSORequest) *domain.UserResponse {
-	//log := config.CreateLoggers(nil)
+	log := config.CreateLoggers(nil)
 
 	tx, err := svc.db.Begin()
 	if err != nil {
@@ -32,14 +36,11 @@ func (svc *Service) SaveRegisterBasicWithoutSSO(ctx context.Context, request *do
 	}
 
 	user := &domain.User{
-		Id:               nil,
 		Email:            request.Email,
 		Password:         &request.Password,
 		FirstName:        request.FirstName,
 		LastName:         request.LastName,
 		Role:             enums.ADMIN,
-		Otp:              "",
-		StatusOtp:        false,
 		RegistrationStep: 0,
 	}
 
@@ -55,42 +56,54 @@ func (svc *Service) SaveRegisterBasicWithoutSSO(ctx context.Context, request *do
 
 	user.Otp = otp
 
-	//messagesInfo := []mailjet.InfoMessagesV31{
-	//	{
-	//		From: &mailjet.RecipientV31{
-	//			Email: viper.GetString("MJ_EMAIL"),
-	//			Name:  "Sales App Super Admin",
-	//		},
-	//		To: &mailjet.RecipientsV31{
-	//			mailjet.RecipientV31{
-	//				Email: "oktaiscool@gmail.com",
-	//				Name:  "passenger 1",
-	//			},
-	//		},
-	//		Subject:  "Your email flight plan!",
-	//		TextPart: "Dear passenger 1, welcome to Mailjet! May the delivery force be with you!",
-	//		HTMLPart: "<h3>Dear passenger 1, welcome to <a href=\"https://www.mailjet.com/\">Mailjet</a>!</h3><br />May the delivery force be with you!",
-	//	},
-	//}
+	timeNow := time.Now()
 
-	//messages := mailjet.MessagesV31{Info: messagesInfo}
+	expiredOtp := timeNow.Add(10 * time.Minute)
+	formatExpiredOtp := expiredOtp.Format("15:04:05")
 
-	//group := new(sync.WaitGroup)
-	//
-	//go func(group *sync.WaitGroup, messages *mailjet.MessagesV31) {
-	//	defer group.Done()
-	//
-	//	_, err = svc.mail.SendMailV31(messages)
-	//	if err != nil {
-	//		log.Error(err)
-	//	}
-	//
-	//	group.Add(1)
-	//}(group, &messages)
+	user.OtpExpiredTime = formatExpiredOtp
+
+	messagesInfo := []mailjet.InfoMessagesV31{
+		{
+			From: &mailjet.RecipientV31{
+				Email: viper.GetString("MJ_EMAIL"),
+				Name:  "EDash Admin",
+			},
+			To: &mailjet.RecipientsV31{
+				mailjet.RecipientV31{
+					Email: user.Email,
+					Name:  user.FirstName + " " + user.LastName,
+				},
+			},
+			Subject:          "Kode Autentikasi Sales App",
+			TemplateID:       6184340,
+			TemplateLanguage: true,
+			Variables: map[string]interface{}{
+				"name":  user.FirstName + " " + user.LastName,
+				"email": user.Email,
+				"otp":   user.Otp,
+			},
+		},
+	}
+
+	messages := mailjet.MessagesV31{Info: messagesInfo}
+
+	group := new(sync.WaitGroup)
+
+	go func(group *sync.WaitGroup, messages *mailjet.MessagesV31) {
+		defer group.Done()
+
+		_, err = svc.mail.SendMailV31(messages)
+		if err != nil {
+			log.Error(err)
+		}
+
+		group.Add(1)
+	}(group, &messages)
 
 	user = svc.rpo.Create(ctx, tx, user)
 
-	//group.Wait()
+	group.Wait()
 	return &domain.UserResponse{
 		Email:     user.Email,
 		FirstName: user.FirstName,
