@@ -45,13 +45,18 @@ type (
 		Email     string `validate:"required,email" json:"email"`
 	}
 
-	OTPConfirmationRequest struct {
+	VerificationOTPRequest struct {
 		Email string `validate:"required,email" json:"email"`
 		Otp   string `validate:"required,min=6,max=6" json:"otp"`
 	}
 
+	GenerateOTPRequest struct {
+		Email string `validate:"required,email" json:"email"`
+	}
+
 	UserRepository interface {
 		Create(ctx context.Context, tx *sql.Tx, user *User) *User
+		Update(ctx context.Context, tx *sql.Tx, user *User) *User
 		FindByEmail(ctx context.Context, tx *sql.Tx, email string) (*User, error)
 	}
 
@@ -59,13 +64,15 @@ type (
 		SaveRegisterBasicWithoutSSO(ctx context.Context, request *RegisterBasicWithoutSSORequest) *UserResponse
 		SaveRegisterBasicWithSSO(ctx context.Context, request *RegisterBasicWithSSORequest) *UserResponse
 		GetByEmail(ctx context.Context, email string) *UserResponse
-		CheckOTPConfirmation(ctx context.Context, request *OTPConfirmationRequest) bool
+		CheckVerificationOTP(ctx context.Context, request *VerificationOTPRequest)
+		GenerateNewOTP(ctx context.Context, request *GenerateOTPRequest)
 	}
 
 	UserHandler interface {
 		RegisterBasicWithoutSSO() http.HandlerFunc
 		RegisterBasicWithSSO() http.HandlerFunc
 		GetByEmail() http.HandlerFunc
-		OTPConfirmation() http.HandlerFunc
+		VerificationOTP() http.HandlerFunc
+		GenerateOTP() http.HandlerFunc
 	}
 )

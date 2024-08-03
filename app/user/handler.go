@@ -143,9 +143,55 @@ func (hdl *Handler) GetByEmail() http.HandlerFunc {
 	}
 }
 
-func (hdl *Handler) OTPConfirmation() http.HandlerFunc {
+// OTPConfirmation is an HTTP handler function that confirms the OTP.
+// It expects a JSON payload in the request body that conforms to the VerificationOTPRequest struct.
+// It validates the request payload using the validator package.
+// If the validation fails, it panics with the error.
+// It checks the OTP using the UserService.
+// If the OTP is valid, it returns a JSON response with the status code set to 201 Created.
+func (hdl *Handler) VerificationOTP() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
-		req := new(domain.OTPConfirmationRequest)
+		// Decode the request payload into a VerificationOTPRequest struct
+		req := new(domain.VerificationOTPRequest)
+
+		decoder := json.NewDecoder(request.Body)
+		err := decoder.Decode(&req)
+		if err != nil {
+			panic(err)
+		}
+
+		// Validate the request payload
+		err = hdl.validate.Struct(req)
+		if err != nil {
+			panic(err)
+		}
+
+		// Check the OTP using the UserService
+		ctx := request.Context()
+		hdl.svc.CheckVerificationOTP(ctx, req)
+
+		// Create a default response with the status code set to 200 OK
+		svcResponse := response.DefaultResponse{
+			Code:   http.StatusOK,
+			Status: http.StatusText(http.StatusOK),
+		}
+
+		// Set the response headers
+		writer.Header().Set("Content-Type", "application/json")
+
+		// Encode the response into the writer
+		encoder := json.NewEncoder(writer)
+
+		err = encoder.Encode(svcResponse)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
+func (hdl *Handler) GenerateOTP() http.HandlerFunc {
+	return func(writer http.ResponseWriter, request *http.Request) {
+		req := new(domain.GenerateOTPRequest)
 
 		decoder := json.NewDecoder(request.Body)
 		err := decoder.Decode(&req)
@@ -154,6 +200,23 @@ func (hdl *Handler) OTPConfirmation() http.HandlerFunc {
 		}
 
 		err = hdl.validate.Struct(req)
+		if err != nil {
+			panic(err)
+		}
+
+		ctx := request.Context()
+		hdl.svc.GenerateNewOTP(ctx, req)
+
+		svcResponse := response.DefaultResponse{
+			Code:   http.StatusOK,
+			Status: http.StatusText(http.StatusOK),
+		}
+
+		writer.Header().Set("Content-Type", "application/json")
+
+		encoder := json.NewEncoder(writer)
+
+		err = encoder.Encode(svcResponse)
 		if err != nil {
 			panic(err)
 		}

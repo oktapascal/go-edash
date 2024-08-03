@@ -28,11 +28,13 @@ func getLastId(ctx context.Context, tx *sql.Tx, email string) *string {
 }
 
 func (rpo *Repository) Create(ctx context.Context, tx *sql.Tx, user *domain.User) *domain.User {
-	query := `insert into users (id,email,password,first_name,last_name,role,otp,otp_expired_time)
-	values (?,?,?,?,?,?,?,?)`
+	query := `insert into users (id,email,password,phone_number,first_name,last_name,role,provider,provider_id,otp,
+    otp_expired_time,registration_step,status_trial,trial_start_date)
+	values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
 
-	_, err := tx.ExecContext(ctx, query, user.Id, user.Email, user.Password, user.FirstName,
-		user.LastName, user.Role, user.Otp, user.OtpExpiredTime)
+	_, err := tx.ExecContext(ctx, query, user.Id, user.Email, user.Password, user.PhoneNumber, user.FirstName,
+		user.LastName, user.Role, user.Provider, user.ProviderId, user.Otp, user.OtpExpiredTime, user.RegistrationStep,
+		user.StatusTrial, user.TrialStartDate)
 	if err != nil {
 		panic(err)
 	}
@@ -40,6 +42,21 @@ func (rpo *Repository) Create(ctx context.Context, tx *sql.Tx, user *domain.User
 	lastId := getLastId(ctx, tx, user.Email)
 
 	user.Id = lastId
+
+	return user
+}
+
+func (rpo *Repository) Update(ctx context.Context, tx *sql.Tx, user *domain.User) *domain.User {
+	query := `update users set password=?,phone_number=?,first_name=?,last_name=?,role=?,provider=?,
+    provider_id=?,otp=?,otp_expired_time=?,registration_step=?,status_trial=?,trial_start_date=?
+	where email = ?`
+
+	_, err := tx.ExecContext(ctx, query, user.Password, user.PhoneNumber, user.FirstName, user.LastName, user.Role,
+		user.Provider, user.ProviderId, user.Otp, user.OtpExpiredTime, user.RegistrationStep, user.StatusTrial,
+		user.TrialStartDate, user.Email)
+	if err != nil {
+		panic(err)
+	}
 
 	return user
 }
