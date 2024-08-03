@@ -10,6 +10,6 @@ import (
 	"github.com/mailjet/mailjet-apiv3-go/v4"
 )
 
-func Wire(validate *validator.Validate, db *sql.DB, mail *mailjet.Client) *Handler {
+func Wire(validate *validator.Validate, db *sql.DB, mail *mailjet.Client) *Router {
 	panic(wire.Build(ProviderSet))
 }

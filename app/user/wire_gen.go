@@ -14,9 +14,10 @@ import (
 
 // Injectors from wire.go:
 
-func Wire(validate *validator.Validate, db *sql.DB, mail *mailjet.Client) *Handler {
+func Wire(validate *validator.Validate, db *sql.DB, mail *mailjet.Client) *Router {
 	repository := ProvideRepository()
 	service := ProvideService(repository, db, mail)
 	handler := ProvideHandler(validate, service)
-	return handler
+	router := ProvideRouter(handler)
+	return router
 }

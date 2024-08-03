@@ -10,6 +10,9 @@ import (
 )
 
 var (
+	route     *Router
+	routeOnce sync.Once
+
 	hdl     *Handler
 	hdlOnce sync.Once
 
@@ -20,6 +23,7 @@ var (
 	rpoOnce sync.Once
 
 	ProviderSet = wire.NewSet(
+		ProvideRouter,
 		ProvideHandler,
 		ProvideService,
 		ProvideRepository,
@@ -28,6 +32,16 @@ var (
 		wire.Bind(new(domain.UserRepository), new(*Repository)),
 	)
 )
+
+func ProvideRouter(hdl domain.UserHandler) *Router {
+	routeOnce.Do(func() {
+		route = &Router{
+			hdl: hdl,
+		}
+	})
+
+	return route
+}
 
 func ProvideHandler(validate *validator.Validate, svc domain.UserService) *Handler {
 	hdlOnce.Do(func() {
