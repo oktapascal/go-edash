@@ -20,7 +20,7 @@ type Service struct {
 	mail *mailjet.Client
 }
 
-func (svc *Service) SaveRegisterBasicWithoutSSO(ctx context.Context, request *domain.RegisterBasicWithoutSSORequest) *domain.UserResponse {
+func (svc *Service) SaveRegisterBasicWithoutSSO(ctx context.Context, request *domain.RegisterBasicWithoutSSORequest) *domain.AuthResponse {
 	log := config.CreateLoggers(nil)
 
 	tx, err := svc.db.Begin()
@@ -104,14 +104,28 @@ func (svc *Service) SaveRegisterBasicWithoutSSO(ctx context.Context, request *do
 	user = svc.rpo.Create(ctx, tx, user)
 
 	group.Wait()
-	return &domain.UserResponse{
+
+	jwtParam := &config.JwtParameters{
+		Id:    *user.Id,
+		Email: user.Email,
+	}
+
+	group.Wait()
+
+	token, errToken := config.GenerateToken(jwtParam)
+	if errToken != nil {
+		panic(errToken)
+	}
+
+	return &domain.AuthResponse{
 		Email:     user.Email,
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
+		Token:     token,
 	}
 }
 
-func (svc *Service) SaveRegisterBasicWithSSO(ctx context.Context, request *domain.RegisterBasicWithSSORequest) *domain.UserResponse {
+func (svc *Service) SaveRegisterBasicWithSSO(ctx context.Context, request *domain.RegisterBasicWithSSORequest) *domain.AuthResponse {
 	log := config.CreateLoggers(nil)
 
 	tx, err := svc.db.Begin()
@@ -194,10 +208,24 @@ func (svc *Service) SaveRegisterBasicWithSSO(ctx context.Context, request *domai
 	user = svc.rpo.Create(ctx, tx, user)
 
 	group.Wait()
-	return &domain.UserResponse{
+
+	jwtParam := &config.JwtParameters{
+		Id:    *user.Id,
+		Email: user.Email,
+	}
+
+	group.Wait()
+
+	token, errToken := config.GenerateToken(jwtParam)
+	if errToken != nil {
+		panic(errToken)
+	}
+
+	return &domain.AuthResponse{
 		Email:     user.Email,
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
+		Token:     token,
 	}
 }
 

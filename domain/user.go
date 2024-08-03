@@ -31,6 +31,13 @@ type (
 		LastName  string `json:"last_name"`
 	}
 
+	AuthResponse struct {
+		Email     string `json:"email"`
+		FirstName string `json:"first_name"`
+		LastName  string `json:"last_name"`
+		Token     string `json:"token"`
+	}
+
 	RegisterBasicWithoutSSORequest struct {
 		FirstName            string `validate:"required,min=1,max=50" json:"first_name"`
 		LastName             string `validate:"required,min=1,max=50" json:"last_name"`
@@ -61,8 +68,8 @@ type (
 	}
 
 	UserService interface {
-		SaveRegisterBasicWithoutSSO(ctx context.Context, request *RegisterBasicWithoutSSORequest) *UserResponse
-		SaveRegisterBasicWithSSO(ctx context.Context, request *RegisterBasicWithSSORequest) *UserResponse
+		SaveRegisterBasicWithoutSSO(ctx context.Context, request *RegisterBasicWithoutSSORequest) *AuthResponse
+		SaveRegisterBasicWithSSO(ctx context.Context, request *RegisterBasicWithSSORequest) *AuthResponse
 		GetByEmail(ctx context.Context, email string) *UserResponse
 		CheckVerificationOTP(ctx context.Context, request *VerificationOTPRequest)
 		GenerateNewOTP(ctx context.Context, request *GenerateOTPRequest)
