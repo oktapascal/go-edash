@@ -4,21 +4,14 @@ import (
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/spf13/viper"
+	"go-rental/enums"
 	"time"
 )
 
 type JwtParameters struct {
-	Id    string
 	Email string
+	Role  enums.Role
 }
-
-type JwtClaims struct {
-	Id    string `json:"id"`
-	Email string `json:"email"`
-	jwt.RegisteredClaims
-}
-
-var SecretKey = []byte(viper.GetString("JWT_SIGNATURE_KEY"))
 
 // GenerateToken generates a JWT token for the given email address.
 //
@@ -31,16 +24,15 @@ var SecretKey = []byte(viper.GetString("JWT_SIGNATURE_KEY"))
 // If the token is successfully generated, the function returns the token string and nil.
 // If there is an error during token signing, the function returns an empty string and the corresponding error.
 func GenerateToken(parameters *JwtParameters) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, JwtClaims{
-		Id:    parameters.Id,
-		Email: parameters.Email,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    viper.GetString("APP_NAME"),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
-		},
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"iss": viper.GetString("APP_NAME"),
+		"sub": parameters.Email,
+		"aud": parameters.Role,
+		"exp": time.Now().Add(24 * time.Hour).Unix(),
+		"iat": time.Now().Unix(),
 	})
 
-	tokenString, err := token.SignedString(SecretKey)
+	tokenString, err := token.SignedString([]byte(viper.GetString("JWT_SIGNATURE_KEY")))
 	if err != nil {
 		return "", err
 	}
@@ -51,23 +43,23 @@ func GenerateToken(parameters *JwtParameters) (string, error) {
 // VerifyToken verifies a JWT token using the provided secret key.
 //
 // The function takes a string token as input and uses the jwt.Parse function to parse and verify the token.
-// It uses a custom function as the key function to validate the token's signature using the SecretKey.
+// It uses a custom function as the key function to validate the token's signature using the JWT_SIGNATURE_KEY.
 //
 // If the token is successfully parsed and verified, the function returns nil.
 // If there is an error during parsing or verification, the function returns the corresponding error.
 //
 // If the token is not valid (expired, malformed, etc.), the function returns an error with the message "invalid token".
-func VerifyToken(token string) error {
-	parse, err := jwt.ParseWithClaims(token, &JwtClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return SecretKey, nil
+func VerifyToken(tokenString string) (*jwt.Token, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
+		return []byte(viper.GetString("JWT_SIGNATURE_KEY")), nil
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if !parse.Valid {
-		return errors.New("invalid token")
+	if !token.Valid {
+		return nil, errors.New("invalid token")
 	}
 
-	return nil
+	return token, nil
 }

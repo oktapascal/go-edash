@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"context"
 	"go-rental/config"
 	"net/http"
 	"strings"
@@ -17,7 +18,7 @@ func VerifyTokenMiddleware(next http.Handler) http.Handler {
 		token = strings.TrimSpace(token)
 
 		// Verify the token using the VerifyToken function from the libs package
-		err := config.VerifyToken(token)
+		verify, err := config.VerifyToken(token)
 
 		// If the token is invalid, return a 401 Unauthorized response
 		if err != nil {
@@ -25,7 +26,15 @@ func VerifyTokenMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
+		claims := verify.Claims
+		ctx := context.WithValue(r.Context(), "claims", claims)
+
 		// If the token is valid, allow the request to proceed to the next handler
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
+
+//func (h *Handler) VerifyToken() http.HandlerFunc {
+//	return func(writer http.ResponseWriter, request *http.Request) {
+//	}
+//}

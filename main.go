@@ -37,8 +37,6 @@ func main() {
 
 	user.Wire(validate, db, mailjetClient).InitializeRoute(router)
 
-	//router.Use(middlewares.AuthorizationCheckMiddleware)
-	//router.Use(middlewares.VerifyTokenMiddleware)
 	router.Get("/", welcomeHandler.Welcome())
 	router.NotFound(welcomeHandler.NotFoundApi())
 	router.MethodNotAllowed(welcomeHandler.MethodNotAllowedApi())

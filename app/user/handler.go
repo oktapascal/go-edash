@@ -119,6 +119,10 @@ func (hdl *Handler) GetByEmail() http.HandlerFunc {
 		// Create a context for the request
 		ctx := request.Context()
 
+		//userInfo := request.Context().Value("claims").(jwt.MapClaims)
+		//fmt.Println(userInfo)
+		//fmt.Println(userInfo["sub"])
+		//fmt.Println(userInfo["aud"])
 		// Retrieve the user data from the service using the email
 		user := hdl.svc.GetByEmail(ctx, email)
 

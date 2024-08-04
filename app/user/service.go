@@ -106,11 +106,9 @@ func (svc *Service) SaveRegisterBasicWithoutSSO(ctx context.Context, request *do
 	group.Wait()
 
 	jwtParam := &config.JwtParameters{
-		Id:    *user.Id,
 		Email: user.Email,
+		Role:  user.Role,
 	}
-
-	group.Wait()
 
 	token, errToken := config.GenerateToken(jwtParam)
 	if errToken != nil {
@@ -210,11 +208,9 @@ func (svc *Service) SaveRegisterBasicWithSSO(ctx context.Context, request *domai
 	group.Wait()
 
 	jwtParam := &config.JwtParameters{
-		Id:    *user.Id,
 		Email: user.Email,
+		Role:  user.Role,
 	}
-
-	group.Wait()
 
 	token, errToken := config.GenerateToken(jwtParam)
 	if errToken != nil {
