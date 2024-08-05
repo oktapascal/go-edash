@@ -20,7 +20,7 @@ type Service struct {
 	mail *mailjet.Client
 }
 
-func (svc *Service) SaveRegisterBasicWithoutSSO(ctx context.Context, request *domain.RegisterBasicWithoutSSORequest) *domain.AuthResponse {
+func (svc *Service) SaveRegisterBasicWithoutSSO(ctx context.Context, request *domain.RegisterBasicWithoutSSORequest) domain.AuthResponse {
 	log := config.CreateLoggers(nil)
 
 	tx, err := svc.db.Begin()
@@ -37,16 +37,16 @@ func (svc *Service) SaveRegisterBasicWithoutSSO(ctx context.Context, request *do
 
 	user := &domain.User{
 		Email:            request.Email,
-		Password:         &request.Password,
+		Password:         request.Password,
 		FirstName:        request.FirstName,
 		LastName:         request.LastName,
 		Role:             enums.ADMIN,
 		RegistrationStep: 0,
 	}
 
-	hash, errHash := utils.Hash(*user.Password)
+	hash, errHash := utils.Hash(user.Password)
 	if errHash == nil {
-		user.Password = &hash
+		user.Password = hash
 	}
 
 	otp, errOtp := utils.OTPGenerator(6)
@@ -115,7 +115,7 @@ func (svc *Service) SaveRegisterBasicWithoutSSO(ctx context.Context, request *do
 		panic(errToken)
 	}
 
-	return &domain.AuthResponse{
+	return domain.AuthResponse{
 		Email:     user.Email,
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
@@ -123,7 +123,7 @@ func (svc *Service) SaveRegisterBasicWithoutSSO(ctx context.Context, request *do
 	}
 }
 
-func (svc *Service) SaveRegisterBasicWithSSO(ctx context.Context, request *domain.RegisterBasicWithSSORequest) *domain.AuthResponse {
+func (svc *Service) SaveRegisterBasicWithSSO(ctx context.Context, request *domain.RegisterBasicWithSSORequest) domain.AuthResponse {
 	log := config.CreateLoggers(nil)
 
 	tx, err := svc.db.Begin()
@@ -146,9 +146,9 @@ func (svc *Service) SaveRegisterBasicWithSSO(ctx context.Context, request *domai
 		RegistrationStep: 0,
 	}
 
-	hash, errHash := utils.Hash(*user.Password)
+	hash, errHash := utils.Hash(user.Password)
 	if errHash == nil {
-		user.Password = &hash
+		user.Password = hash
 	}
 
 	otp, errOtp := utils.OTPGenerator(6)
@@ -217,7 +217,7 @@ func (svc *Service) SaveRegisterBasicWithSSO(ctx context.Context, request *domai
 		panic(errToken)
 	}
 
-	return &domain.AuthResponse{
+	return domain.AuthResponse{
 		Email:     user.Email,
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
@@ -229,7 +229,7 @@ func (svc *Service) SaveRegisterBasicWithSSO(ctx context.Context, request *domai
 //
 // It takes a context.Context and the user's email as parameters.
 // It returns a pointer to a domain.UserResponse.
-func (svc *Service) GetByEmail(ctx context.Context, email string) *domain.UserResponse {
+func (svc *Service) GetByEmail(ctx context.Context, email string) domain.UserResponse {
 	// Start a new database transaction
 	tx, err := svc.db.Begin()
 	if err != nil {
@@ -247,7 +247,7 @@ func (svc *Service) GetByEmail(ctx context.Context, email string) *domain.UserRe
 	}
 
 	// Return the user's response
-	return &domain.UserResponse{
+	return domain.UserResponse{
 		Email:     user.Email,
 		FirstName: user.FirstName,
 		LastName:  user.LastName,

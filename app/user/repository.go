@@ -10,7 +10,7 @@ import (
 type Repository struct {
 }
 
-func getLastId(ctx context.Context, tx *sql.Tx, email string) *string {
+func getLastId(ctx context.Context, tx *sql.Tx, email string) string {
 	var lastId string
 
 	query := "select id from users where email = ? order by updated_at desc;"
@@ -24,7 +24,7 @@ func getLastId(ctx context.Context, tx *sql.Tx, email string) *string {
 		err = rows.Scan(&lastId)
 	}
 
-	return &lastId
+	return lastId
 }
 
 func (rpo *Repository) Create(ctx context.Context, tx *sql.Tx, user *domain.User) *domain.User {
@@ -48,12 +48,12 @@ func (rpo *Repository) Create(ctx context.Context, tx *sql.Tx, user *domain.User
 
 func (rpo *Repository) Update(ctx context.Context, tx *sql.Tx, user *domain.User) *domain.User {
 	query := `update users set password=?,phone_number=?,first_name=?,last_name=?,role=?,provider=?,
-    provider_id=?,otp=?,otp_expired_time=?,registration_step=?,status_trial=?,trial_start_date=?
+    provider_id=?,otp=?,otp_expired_time=?,registration_step=?,status_trial=?,trial_start_date=?,company_id=?
 	where email = ?`
 
 	_, err := tx.ExecContext(ctx, query, user.Password, user.PhoneNumber, user.FirstName, user.LastName, user.Role,
 		user.Provider, user.ProviderId, user.Otp, user.OtpExpiredTime, user.RegistrationStep, user.StatusTrial,
-		user.TrialStartDate, user.Email)
+		user.TrialStartDate, user.CompanyId, user.Email)
 	if err != nil {
 		panic(err)
 	}
@@ -62,7 +62,7 @@ func (rpo *Repository) Update(ctx context.Context, tx *sql.Tx, user *domain.User
 }
 
 func (rpo *Repository) FindByEmail(ctx context.Context, tx *sql.Tx, email string) (*domain.User, error) {
-	query := `select id, email, password, first_name, last_name, otp, otp_expired_time
+	query := `select id, email, password, first_name, last_name, otp, otp_expired_time, company_id
 	from users where email = ?`
 
 	rows, err := tx.QueryContext(ctx, query, email)
@@ -73,7 +73,7 @@ func (rpo *Repository) FindByEmail(ctx context.Context, tx *sql.Tx, email string
 	user := new(domain.User)
 	if rows.Next() {
 		err = rows.Scan(&user.Id, &user.Email, &user.Password, &user.FirstName, &user.LastName, &user.Otp,
-			&user.OtpExpiredTime)
+			&user.OtpExpiredTime, &user.CompanyId)
 
 		return user, nil
 	} else {

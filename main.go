@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/spf13/viper"
+	"go-rental/app/company"
 	"go-rental/app/user"
 	"go-rental/app/welcome"
 	"go-rental/config"
@@ -36,6 +37,7 @@ func main() {
 	welcomeHandler := welcome.Wire()
 
 	user.Wire(validate, db, mailjetClient).InitializeRoute(router)
+	company.Wire(validate, db).InitializeRoute(router)
 
 	router.Get("/", welcomeHandler.Welcome())
 	router.NotFound(welcomeHandler.NotFoundApi())

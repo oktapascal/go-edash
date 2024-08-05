@@ -9,20 +9,21 @@ import (
 
 type (
 	User struct {
-		Id               *string
+		Id               string
 		Email            string
-		Password         *string
+		Password         string
 		PhoneNumber      string
 		FirstName        string
 		LastName         string
 		Role             enums.Role
-		Provider         *string
-		ProviderId       *int8
+		Provider         string
+		ProviderId       int8
 		Otp              string
 		OtpExpiredTime   string
 		RegistrationStep int8
-		StatusTrial      *bool
-		TrialStartDate   *string
+		StatusTrial      bool
+		TrialStartDate   string
+		CompanyId        string
 	}
 
 	UserResponse struct {
@@ -68,9 +69,9 @@ type (
 	}
 
 	UserService interface {
-		SaveRegisterBasicWithoutSSO(ctx context.Context, request *RegisterBasicWithoutSSORequest) *AuthResponse
-		SaveRegisterBasicWithSSO(ctx context.Context, request *RegisterBasicWithSSORequest) *AuthResponse
-		GetByEmail(ctx context.Context, email string) *UserResponse
+		SaveRegisterBasicWithoutSSO(ctx context.Context, request *RegisterBasicWithoutSSORequest) AuthResponse
+		SaveRegisterBasicWithSSO(ctx context.Context, request *RegisterBasicWithSSORequest) AuthResponse
+		GetByEmail(ctx context.Context, email string) UserResponse
 		CheckVerificationOTP(ctx context.Context, request *VerificationOTPRequest)
 		GenerateNewOTP(ctx context.Context, request *GenerateOTPRequest)
 	}
