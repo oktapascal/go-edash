@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"context"
-	"go-rental/config"
+	"go-edash/config"
 	"net/http"
 	"strings"
 )

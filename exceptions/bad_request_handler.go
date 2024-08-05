@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-playground/validator/v10"
-	"go-rental/response"
+	"go-edash/response"
 	"net/http"
 )
 

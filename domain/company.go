@@ -3,7 +3,7 @@ package domain
 import (
 	"context"
 	"database/sql"
-	"go-rental/enums"
+	"go-edash/enums"
 	"net/http"
 )
 

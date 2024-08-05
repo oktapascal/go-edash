@@ -5,7 +5,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/google/wire"
 	"github.com/mailjet/mailjet-apiv3-go/v4"
-	"go-rental/domain"
+	"go-edash/domain"
 	"sync"
 )
 

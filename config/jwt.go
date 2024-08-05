@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/spf13/viper"
-	"go-rental/enums"
+	"go-edash/enums"
 	"time"
 )
 

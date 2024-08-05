@@ -3,7 +3,7 @@ package middlewares
 import (
 	"errors"
 	"github.com/go-playground/validator/v10"
-	"go-rental/exceptions"
+	"go-edash/exceptions"
 	"net/http"
 )
 

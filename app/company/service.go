@@ -4,9 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"github.com/golang-jwt/jwt/v5"
-	"go-rental/domain"
-	"go-rental/exceptions"
-	"go-rental/utils"
+	"go-edash/domain"
+	"go-edash/exceptions"
+	"go-edash/utils"
 )
 
 type Service struct {

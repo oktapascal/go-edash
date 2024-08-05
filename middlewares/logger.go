@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"go-rental/config"
+	"go-edash/config"
 	"net/http"
 )
 

@@ -2,7 +2,7 @@ package welcome
 
 import (
 	"github.com/spf13/viper"
-	"go-rental/exceptions"
+	"go-edash/exceptions"
 	"net/http"
 )
 

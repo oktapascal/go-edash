@@ -3,8 +3,8 @@ package company
 import (
 	"encoding/json"
 	"github.com/go-playground/validator/v10"
-	"go-rental/domain"
-	"go-rental/response"
+	"go-edash/domain"
+	"go-edash/response"
 	"net/http"
 )
 

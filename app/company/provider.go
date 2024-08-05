@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/wire"
-	"go-rental/app/user"
-	"go-rental/domain"
+	"go-edash/app/user"
+	"go-edash/domain"
 	"sync"
 )
 

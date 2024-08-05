@@ -2,8 +2,8 @@ package exceptions
 
 import (
 	"encoding/json"
-	"go-rental/config"
-	"go-rental/response"
+	"go-edash/config"
+	"go-edash/response"
 	"net/http"
 )
 

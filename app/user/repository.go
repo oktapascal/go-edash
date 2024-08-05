@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"go-rental/domain"
+	"go-edash/domain"
 )
 
 type Repository struct {

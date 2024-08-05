@@ -2,8 +2,8 @@ package user
 
 import (
 	"github.com/go-chi/chi/v5"
-	"go-rental/domain"
-	"go-rental/middlewares"
+	"go-edash/domain"
+	"go-edash/middlewares"
 )
 
 type Router struct {
