@@ -10,8 +10,8 @@ import (
 )
 
 type FormatError struct {
-	Param   string
-	Message string
+	Param   string `json:"param"`
+	Message string `json:"message"`
 }
 
 // convertTagToMessage converts a validator.FieldError's tag into a human-readable error message.
